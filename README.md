@@ -1,2 +1,0 @@
-# laundry
-Laundry Manajemen System
