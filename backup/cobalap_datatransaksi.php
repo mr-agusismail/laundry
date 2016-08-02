@@ -1,0 +1,115 @@
+<?php
+include "db/koneksi.php";
+$pencarianSQL	= "";
+# PENCARIAN DATA 
+if(isset($_POST['btnCari'])) {
+	$txtKataKunci	= trim($_POST['txtKataKunci']);
+
+	// Menyusun sub query pencarian
+	$pencarianSQL	= "WHERE id_nota='$txtKataKunci' OR id_pel LIKE '%$txtKataKunci%' OR status_bayar LIKE '$txtKataKunci' OR tgl LIKE '%$txtKataKunci%' ";
+}
+
+# Teks pada form
+$dataKataKunci = isset($_POST['txtKataKunci']) ? $_POST['txtKataKunci'] : '';
+
+
+# UNTUK PAGING (PEMBAGIAN HALAMAN)
+$baris	= 25;
+$hal 	= isset($_GET['hal']) ? $_GET['hal'] : 1;
+$pageSql= "SELECT * FROM data_transaksi $pencarianSQL";
+$pageQry= mysql_query($pageSql) or die ("error paging: ".mysql_error());
+$total= mysql_query("SELECT SUM(total) AS total FROM data_transaksi $pencarianSQL");
+$r=mysql_fetch_array($total);
+
+$jumlah	= mysql_num_rows($pageQry);
+$maks	= ceil($jumlah/$baris);
+$mulai	= $baris * ($hal-1); 
+
+//tanggal
+$min_tanggal=mysql_fetch_array(mysql_query("select min(tgl) as min_tanggal from data_transaksi"));
+$max_tanggal=mysql_fetch_array(mysql_query("select max(tgl) as max_tanggal from data_transaksi"));
+?>
+<style type="text/css">
+
+<!--
+.style1 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+}
+.style2 {font-family: Arial, Helvetica, sans-serif}
+-->
+</style>
+<div class="box">
+			<label><h2>Laporan Data Transaksi</h2></label>
+<table width="917" border="0" cellspacing="1" cellpadding="3" class="table-border">
+  <tr>
+    <td colspan="2" align="right">&nbsp;</td>
+  </tr>
+  <tr>
+    <td colspan="2"><form action="<?php $_SERVER['PHP_SELF']; ?>" method="post" name="form1" target="_self" class="style2" id="form1">
+      <table  class="table-list" width="100%" border="0" cellspacing="1" cellpadding="3">
+        <tr>
+          <td colspan="2" bgcolor="#F5F5F5"><strong>PENCARIAN</strong></td>
+          </tr>
+        <tr>
+          <td width="30%"><strong>Nama / ID nota </strong> </td>
+          <td width="70%"><input name="txtKataKunci" type="text" value="<?php echo $dataKataKunci; ?>" size="35" maxlength="100" />
+            <input name="btnCari" type="submit" value=" Cari " /></td>
+        </tr>
+      </table>
+                </form>    </td>
+  </tr>
+
+  <tr>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <tr>
+    <td colspan="2"><span class="style2"></span></td>
+  </tr>
+  <tr>
+    <td colspan="2">
+	<table width="100%" border="0" cellpadding="3" cellspacing="1" class="table-list style2">
+      <tr>
+        <th width="3%" bgcolor="#F5F5F5">No </th>
+        <th width="10%" bgcolor="#F5F5F5">Nota</th>
+        <th width="15%" bgcolor="#F5F5F5">Nama</th>
+        <th width="15%" bgcolor="#F5F5F5">Tanggal</th>
+        <th width="16%" bgcolor="#F5F5F5">Total</th>
+        <th width="17%" bgcolor="#F5F5F5">Status</th>
+        
+        </tr>
+    <?php
+	$mySql = "SELECT * FROM data_transaksi $pencarianSQL ORDER BY id_nota DESC LIMIT $mulai, $baris";
+	$myQry = mysql_query($mySql)  or die ("Query salah : ".mysql_error()); 
+	$nomor = $mulai; 
+	while ($myData = mysql_fetch_array($myQry)) {
+		$nomor++;
+		$Kode = $myData['id_nota'];
+	?>		
+      <tr>
+        <td> <?php echo $nomor; ?> </td>
+        <td> <?php echo $myData['id_nota']; ?> </td>
+        <td><?php echo $myData['id_pel']; ?></td>
+        <td><?php echo $myData['tgl']; ?></td>
+        <td><?php echo $myData['total']; ?></td>
+        <td><?php echo $myData['status_bayar']; ?></td>
+     
+
+      </tr>
+	  <?php } ?>
+    </table></td>
+  </tr>
+  <tr bgcolor="#00CC00">
+    <td width="495"><b>Jumlah Data :<?php echo $jumlah; ?></b></td>
+   
+    <td width="407" align="right"><b>Halaman ke :</b>
+      <?php
+	for ($h = 1; $h <= $maks; $h++) {
+		echo " <a href='?page=lap_datatransaksi&hal=$h'>$h</a> ";
+	}
+	?></td>
+  </tr>
+</table>
+ <td width="495"><b>Total Transaksi :  Rp. <?php echo $r['total']; ?></b></td>
+ </div>
+</div>
