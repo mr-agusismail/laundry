@@ -3,9 +3,13 @@
     <ul>satu dua</ul>
 </li>
 <li>dua
+<<<<<<< HEAD
     <ul>dua satu dari dekstop</ul>
+=======
+    <ul>dua satu dari github</ul>
+>>>>>>> origin/master
 </li>
 <li>tiga</li>
 <li>lima
-    <ul>pull</ul>
+    <ul>cras</ul>
 </li>
